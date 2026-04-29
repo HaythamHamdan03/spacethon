@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SatGuard AI — SPACETHON 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #020812; --bg2: #060f1e; --bg3: #0a1628;
+  --border: #0e2a4a; --border2: #1a4a7a;
+  --blue: #0ea5e9; --blue2: #38bdf8; --teal: #06b6d4;
+  --green: #10b981; --red: #ef4444; --yellow: #f59e0b; --purple: #8b5cf6;
+  --text: #e2eaf5; --text2: #7a9ab8; --text3: #3a5a7a;
+  --font-display: 'Orbitron', monospace;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+  --glow: 0 0 20px rgba(14,165,233,0.3);
+  --glow-red: 0 0 20px rgba(239,68,68,0.5);
+  --glow-green: 0 0 20px rgba(16,185,129,0.3);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:var(--font-body); min-height:100vh; overflow-x:hidden; }
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 30% 10%, rgba(14,165,233,0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 70% 85%, rgba(14,165,233,0.3) 0%, transparent 100%);
+}
+::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* HEADER */
+header { position:relative; z-index:10; background:linear-gradient(180deg,rgba(6,15,30,0.98),rgba(2,8,18,0.95)); border-bottom:1px solid var(--border2); padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:72px; box-shadow:0 4px 40px rgba(0,0,0,0.6); }
+.logo { display:flex; align-items:center; gap:14px; }
+.satellite-icon { width:44px; height:44px; animation:rotateSat 8s linear infinite; }
+@keyframes rotateSat { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.logo h1 { font-family:var(--font-display); font-size:1.1rem; font-weight:900; letter-spacing:3px; background:linear-gradient(90deg,var(--blue),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.logo p { font-family:var(--font-mono); font-size:0.65rem; color:var(--text2); letter-spacing:2px; margin-top:2px; }
+.header-right { display:flex; align-items:center; gap:20px; }
+.live-badge { display:flex; align-items:center; gap:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.4); border-radius:20px; padding:6px 14px; font-family:var(--font-mono); font-size:0.72rem; color:var(--red); letter-spacing:2px; }
+.live-dot { width:7px; height:7px; border-radius:50%; background:var(--red); animation:blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.1} }
+.nav-tabs { display:flex; gap:4px; }
+.nav-tab { font-family:var(--font-mono); font-size:0.72rem; letter-spacing:1px; padding:8px 16px; border-radius:6px; border:1px solid transparent; cursor:pointer; background:transparent; color:var(--text2); transition:all 0.2s; }
+.nav-tab:hover { color:var(--text); border-color:var(--border2); }
+.nav-tab.active { background:rgba(14,165,233,0.1); border-color:var(--blue); color:var(--blue2); }
+
+/* STATUS BAR */
+.status-bar { position:relative; z-index:9; background:rgba(6,15,30,0.9); border-bottom:1px solid var(--border); padding:10px 32px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; font-family:var(--font-mono); font-size:0.72rem; }
+.status-item { display:flex; align-items:center; gap:7px; color:var(--text2); }
+.status-dot { width:6px; height:6px; border-radius:50%; }
+.status-dot.green { background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse2 2s infinite; }
+.status-dot.red   { background:var(--red);   box-shadow:0 0 6px var(--red);   animation:pulse2 1s infinite; }
+.status-dot.blue  { background:var(--blue);  box-shadow:0 0 6px var(--blue);  animation:pulse2 1.5s infinite; }
+@keyframes pulse2 { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.status-bar b { color:var(--blue2); }
+
+/* PAGES */
+.page { display:none; }
+.page.active { display:block; }
+
+/* METRICS */
+.metrics { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; padding:20px 32px 0; position:relative; z-index:5; }
+.metric { background:var(--bg3); border:1px solid var(--border); border-radius:10px; padding:16px 20px; position:relative; overflow:hidden; transition:border-color 0.3s; }
+.metric:hover { border-color:var(--border2); }
+.metric::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.metric.blue::before   { background:linear-gradient(90deg,transparent,var(--blue),transparent); }
+.metric.green::before  { background:linear-gradient(90deg,transparent,var(--green),transparent); }
+.metric.red::before    { background:linear-gradient(90deg,transparent,var(--red),transparent); }
+.metric.yellow::before { background:linear-gradient(90deg,transparent,var(--yellow),transparent); }
+.metric.purple::before { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+.metric-val { font-family:var(--font-display); font-size:1.8rem; font-weight:700; line-height:1; margin-bottom:6px; }
+.metric-val.blue   { color:var(--blue2); }
+.metric-val.green  { color:var(--green); }
+.metric-val.red    { color:var(--red); }
+.metric-val.yellow { color:var(--yellow); }
+.metric-val.purple { color:var(--purple); }
+.metric-label { font-family:var(--font-mono); font-size:0.62rem; color:var(--text3); letter-spacing:2px; text-transform:uppercase; }
+.metric-sub { font-size:0.7rem; color:var(--text2); margin-top:4px; }
+
+/* TIMELINE */
+.timeline-wrap { padding:14px 32px 0; position:relative; z-index:5; }
+.timeline-label { font-family:var(--font-mono); font-size:0.68rem; color:var(--text2); letter-spacing:2px; margin-bottom:10px; }
+#day-timeline { display:flex; gap:8px; }
+
+/* MAIN GRID */
+.main-grid { display:grid; grid-template-columns:1fr 320px; gap:16px; padding:16px 32px; position:relative; z-index:5; }
+.charts-col { display:flex; flex-direction:column; gap:16px; }
+.card { background:var(--bg3); border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:border-color 0.3s; }
+.card:hover { border-color:var(--border2); }
+.card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(10,22,40,0.6); }
+.card-title { font-family:var(--font-mono); font-size:0.78rem; color:var(--blue2); letter-spacing:2px; display:flex; align-items:center; gap:8px; }
+.card-badge { font-size:0.62rem; background:rgba(14,165,233,0.1); border:1px solid rgba(14,165,233,0.3); color:var(--blue); padding:2px 8px; border-radius:8px; letter-spacing:1px; }
+.card-body { padding:16px 20px; }
+canvas { max-height:180px !important; }
+
+/* SIDE PANEL */
+.side-panel { display:flex; flex-direction:column; gap:16px; }
+
+/* SAT VIZ */
+.sat-viz { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; position:relative; overflow:hidden; }
+.sat-viz::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 50%,rgba(14,165,233,0.05) 0%,transparent 70%); }
+.sat-container { position:relative; width:140px; height:140px; margin:0 auto 16px; }
+.orbit-ring  { position:absolute; inset:0;    border:1px solid rgba(14,165,233,0.2); border-radius:50%; animation:spin 8s linear infinite; }
+.orbit-ring2 { position:absolute; inset:20px; border:1px dashed rgba(6,182,212,0.15); border-radius:50%; animation:spin 5s linear infinite reverse; }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.sat-body { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:28px; }
+.sat-status-label { font-family:var(--font-mono); font-size:0.7rem; color:var(--text2); letter-spacing:2px; margin-bottom:6px; text-transform:uppercase; }
+.sat-status-val { font-family:var(--font-display); font-size:0.85rem; font-weight:700; letter-spacing:2px; }
+.sat-status-val.normal { color:var(--green); }
+.sat-status-val.anomaly { color:var(--red); animation:flash 0.8s infinite; }
+@keyframes flash { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.sat-stats { margin-top:14px; display:flex; flex-direction:column; gap:8px; text-align:left; }
+.sat-stat { display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.68rem; padding:6px 10px; background:rgba(14,165,233,0.04); border:1px solid var(--border); border-radius:6px; }
+.sat-stat-key { color:var(--text3); letter-spacing:1px; }
+.sat-stat-val { color:var(--blue2); }
+.sat-stat-val.ok   { color:var(--green); }
+.sat-stat-val.warn { color:var(--red); }
+
+/* ALERTS */
+.alerts-list { display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; }
+.alert-item { display:flex; gap:12px; padding:12px 14px; border-radius:8px; border:1px solid; font-size:0.78rem; animation:slideIn 0.4s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.alert-item.ok   { background:rgba(16,185,129,0.05); border-color:rgba(16,185,129,0.25); }
+.alert-item.warn { background:rgba(239,68,68,0.07);  border-color:rgba(239,68,68,0.35); }
+.alert-item.info { background:rgba(14,165,233,0.05); border-color:rgba(14,165,233,0.25); }
+.alert-icon  { font-size:1.1rem; flex-shrink:0; }
+.alert-title { font-family:var(--font-mono); font-size:0.7rem; letter-spacing:1px; margin-bottom:3px; }
+.alert-title.ok   { color:var(--green); }
+.alert-title.warn { color:var(--red); }
+.alert-title.info { color:var(--blue2); }
+.alert-desc { color:var(--text2); font-size:0.68rem; line-height:1.5; }
+
+/* SIM CONTROLS */
+.sim-controls { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:16px 20px; }
+.sim-title { font-family:var(--font-mono); font-size:0.72rem; color:var(--blue2); letter-spacing:2px; margin-bottom:14px; }
+.sim-btns { display:flex; flex-direction:column; gap:8px; }
+.sim-btn { width:100%; padding:10px 16px; border-radius:8px; border:1px solid; font-family:var(--font-mono); font-size:0.72rem; letter-spacing:1px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:8px; }
+.sim-btn.primary { background:rgba(14,165,233,0.1); border-color:var(--blue); color:var(--blue2); }
+.sim-btn.primary:hover { background:rgba(14,165,233,0.2); box-shadow:var(--glow); }
+.sim-btn.danger  { background:rgba(239,68,68,0.08);  border-color:rgba(239,68,68,0.4); color:var(--red); }
+.sim-btn.danger:hover  { background:rgba(239,68,68,0.15); box-shadow:var(--glow-red); }
+.sim-btn.success { background:rgba(16,185,129,0.08); border-color:rgba(16,185,129,0.4); color:var(--green); }
+.sim-btn.success:hover { background:rgba(16,185,129,0.15); box-shadow:var(--glow-green); }
+.progress-bar-wrap { margin-top:12px; background:var(--bg2); border:1px solid var(--border); border-radius:6px; height:6px; overflow:hidden; display:none; }
+.progress-bar { height:100%; background:linear-gradient(90deg,var(--blue),var(--teal)); width:0%; transition:width 0.1s; border-radius:6px; }
+
+/* HOW IT WORKS */
+.how-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding:24px 32px; position:relative; z-index:5; }
+.how-card { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:24px; position:relative; overflow:hidden; transition:border-color 0.3s,transform 0.3s; }
+.how-card:hover { border-color:var(--border2); transform:translateY(-3px); }
+.how-num { font-family:var(--font-display); font-size:3rem; font-weight:900; color:rgba(14,165,233,0.1); position:absolute; top:10px; right:16px; line-height:1; }
+.how-icon { font-size:2rem; margin-bottom:14px; }
+.how-title { font-family:var(--font-display); font-size:0.8rem; font-weight:700; letter-spacing:2px; color:var(--blue2); margin-bottom:10px; }
+.how-desc { font-size:0.82rem; color:var(--text2); line-height:1.7; }
+.how-tag { display:inline-block; margin-top:12px; font-family:var(--font-mono); font-size:0.65rem; background:rgba(14,165,233,0.08); border:1px solid rgba(14,165,233,0.2); color:var(--blue); padding:3px 10px; border-radius:6px; letter-spacing:1px; }
+.pipeline { margin:0 32px 24px; background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:24px; position:relative; z-index:5; }
+.pipeline-title { font-family:var(--font-mono); font-size:0.72rem; color:var(--blue2); letter-spacing:2px; margin-bottom:20px; }
+.pipeline-steps { display:flex; align-items:center; overflow-x:auto; }
+.pipe-step { flex:1; text-align:center; padding:14px 10px; background:rgba(14,165,233,0.04); border:1px solid var(--border); min-width:90px; }
+.pipe-step+.pipe-step { margin-left:-1px; border-left:none; }
+.pipe-step:first-child { border-radius:8px 0 0 8px; }
+.pipe-step:last-child  { border-radius:0 8px 8px 0; }
+.pipe-icon  { font-size:1.4rem; margin-bottom:6px; }
+.pipe-label { font-family:var(--font-mono); font-size:0.62rem; color:var(--text2); letter-spacing:1px; }
+
+/* RESULTS */
+.results-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:20px 32px; position:relative; z-index:5; }
+.result-big { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:28px; text-align:center; }
+.result-num { font-family:var(--font-display); font-size:4rem; font-weight:900; line-height:1; margin-bottom:8px; }
+.result-label { font-family:var(--font-mono); font-size:0.72rem; color:var(--text2); letter-spacing:2px; }
+.result-sub { font-size:0.78rem; color:var(--text3); margin-top:8px; }
+.attempts-table { margin:0 32px 20px; background:var(--bg3); border:1px solid var(--border); border-radius:12px; overflow:hidden; position:relative; z-index:5; }
+.attempts-table table { width:100%; border-collapse:collapse; }
+.attempts-table th { background:rgba(14,165,233,0.08); border-bottom:1px solid var(--border); padding:12px 16px; font-family:var(--font-mono); font-size:0.68rem; color:var(--blue2); letter-spacing:2px; text-align:left; }
+.attempts-table td { padding:12px 16px; font-size:0.8rem; border-bottom:1px solid rgba(14,42,74,0.5); color:var(--text2); }
+.attempts-table tr:last-child td { border-bottom:none; }
+.attempts-table tr.winner td { color:var(--text); background:rgba(16,185,129,0.04); }
+.prec { font-family:var(--font-mono); font-weight:600; }
+.prec.good { color:var(--green); } .prec.bad { color:var(--red); } .prec.mid { color:var(--yellow); }
+
+/* SIMULATION OVERLAY */
+.sim-overlay { position:fixed; inset:0; background:rgba(2,8,18,0.96); z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+.sim-overlay.active { display:flex; }
+.sim-title-big { font-family:var(--font-display); font-size:1.4rem; font-weight:900; letter-spacing:4px; color:var(--blue2); text-align:center; }
+.sim-subtitle   { font-family:var(--font-mono); font-size:0.8rem; color:var(--text2); letter-spacing:2px; text-align:center; }
+.sim-chart-wrap { width:90%; max-width:900px; background:var(--bg3); border:1px solid var(--border2); border-radius:16px; padding:24px; box-shadow:0 0 60px rgba(14,165,233,0.1); }
+.sim-status { font-family:var(--font-mono); font-size:1rem; letter-spacing:3px; padding:12px 28px; border-radius:8px; border:1px solid; text-align:center; transition:all 0.3s; }
+.sim-status.normal  { color:var(--green); border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.05); }
+.sim-status.anomaly { color:var(--red);   border-color:rgba(239,68,68,0.6);  background:rgba(239,68,68,0.08); animation:flash 0.8s infinite; }
+.sim-close { font-family:var(--font-mono); font-size:0.72rem; letter-spacing:2px; color:var(--text2); background:transparent; border:1px solid var(--border2); padding:10px 24px; border-radius:8px; cursor:pointer; transition:all 0.2s; }
+.sim-close:hover { color:var(--text); border-color:var(--blue); }
+
+/* FAULT ALERT POPUP */
+.fault-alert { position:fixed; top:90px; right:24px; width:340px; background:rgba(8,3,3,0.97); border:2px solid var(--red); border-radius:14px; z-index:200; box-shadow:0 0 40px rgba(239,68,68,0.5),0 0 80px rgba(239,68,68,0.2); display:none; overflow:hidden; animation:alertSlide 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+.fault-alert.active { display:block; }
+@keyframes alertSlide { from{opacity:0;transform:translateX(60px) scale(0.9)} to{opacity:1;transform:translateX(0) scale(1)} }
+.fault-alert-header { background:linear-gradient(135deg,rgba(239,68,68,0.3),rgba(239,68,68,0.1)); padding:14px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(239,68,68,0.3); }
+.fault-alert-title { font-family:var(--font-display); font-size:0.75rem; font-weight:700; letter-spacing:2px; color:var(--red); display:flex; align-items:center; gap:8px; animation:flash 0.8s infinite; }
+.fault-alert-close { background:transparent; border:none; color:var(--text2); cursor:pointer; font-size:1rem; padding:0 4px; transition:color 0.2s; }
+.fault-alert-close:hover { color:var(--red); }
+.fault-alert-body { padding:16px 18px; }
+.fault-alert-row { display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.68rem; padding:6px 0; border-bottom:1px solid rgba(239,68,68,0.1); }
+.fault-alert-row:last-child { border-bottom:none; }
+.fault-alert-key { color:var(--text3); letter-spacing:1px; }
+.fault-alert-val { color:var(--red); font-weight:600; }
+.fault-alert-val.white { color:var(--text); }
+.fault-alert-actions { padding:0 18px 16px; display:flex; flex-direction:column; gap:6px; }
+.fault-action-btn { width:100%; padding:9px 14px; border-radius:7px; border:1px solid; font-family:var(--font-mono); font-size:0.68rem; letter-spacing:1px; display:flex; align-items:center; gap:8px; }
+.fault-action-btn.taken   { border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.06); color:var(--green); }
+.fault-action-btn.pending { border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.06); color:var(--yellow); }
+
+footer { position:relative; z-index:5; text-align:center; padding:16px; font-family:var(--font-mono); font-size:0.62rem; color:var(--text3); letter-spacing:2px; border-top:1px solid var(--border); margin-top:8px; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fadeUp 0.5s ease forwards; }
+</style>
+</head>
+<body>
+
+<!-- FAULT ALERT POPUP -->
+<div class="fault-alert" id="faultAlert">
+  <div class="fault-alert-header">
+    <div class="fault-alert-title">🚨 FAULT DETECTED</div>
+    <button class="fault-alert-close" onclick="closeFaultAlert()">✕</button>
+  </div>
+  <div class="fault-alert-body">
+    <div class="fault-alert-row"><span class="fault-alert-key">CHANNEL</span><span class="fault-alert-val white" id="fa-channel">—</span></div>
+    <div class="fault-alert-row"><span class="fault-alert-key">SUBSYSTEM</span><span class="fault-alert-val white" id="fa-subsystem">—</span></div>
+    <div class="fault-alert-row"><span class="fault-alert-key">FAULT ONSET</span><span class="fault-alert-val" id="fa-onset">—</span></div>
+    <div class="fault-alert-row"><span class="fault-alert-key">PEAK RECON ERROR</span><span class="fault-alert-val" id="fa-error">—</span></div>
+    <div class="fault-alert-row"><span class="fault-alert-key">THRESHOLD (3σ)</span><span class="fault-alert-val" id="fa-threshold">—</span></div>
+    <div class="fault-alert-row"><span class="fault-alert-key">CONSECUTIVE FLAGS</span><span class="fault-alert-val">10+ MIN ✓</span></div>
+    <div class="fault-alert-row"><span class="fault-alert-key">OUTLIERS REMOVED</span><span class="fault-alert-val white" id="fa-outliers">—</span></div>
+  </div>
+  <div class="fault-alert-actions">
+    <div class="fault-action-btn taken">✅ BACKUP POWER RELAY ENGAGED</div>
+    <div class="fault-action-btn taken">✅ ENGINEERING TEAM NOTIFIED</div>
+    <div class="fault-action-btn pending">⏳ AWAITING GROUND CONFIRMATION</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg class="satellite-icon" viewBox="0 0 44 44" fill="none">
+      <rect x="18" y="16" width="8" height="12" rx="2" fill="#0ea5e9" opacity="0.9"/>
+      <rect x="4" y="19" width="12" height="6" rx="1" fill="#38bdf8" opacity="0.7"/>
+      <rect x="28" y="19" width="12" height="6" rx="1" fill="#38bdf8" opacity="0.7"/>
+      <rect x="20" y="12" width="4" height="4" rx="1" fill="#06b6d4" opacity="0.8"/>
+      <circle cx="22" cy="22" r="2" fill="#fff" opacity="0.9"/>
+      <circle cx="22" cy="22" r="8" stroke="#0ea5e9" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.4"/>
+      <circle cx="22" cy="22" r="14" stroke="#0ea5e9" stroke-width="0.3" stroke-dasharray="1 4" opacity="0.2"/>
+    </svg>
+    <div>
+      <h1>SATGUARD AI</h1>
+      <p>AUTONOMOUS SATELLITE FAULT DETECTION · SPACETHON 2026</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('dashboard',this)">DASHBOARD</button>
+      <button class="nav-tab" onclick="showPage('how',this)">HOW IT WORKS</button>
+      <button class="nav-tab" onclick="showPage('results',this)">RESULTS</button>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE MONITOR</div>
+  </div>
+</header>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-item"><div class="status-dot green"></div><span>AI MODEL ACTIVE</span></div>
+  <div class="status-item"><div class="status-dot green"></div><span>NASA SMAP DATASET LOADED</span></div>
+  <div class="status-item"><div class="status-dot blue"></div><span>CHANNEL: <b id="sb-channel">—</b></span></div>
+  <div class="status-item"><div class="status-dot red"></div><span>ANOMALY DETECTED AT <b id="sb-onset">—</b></span></div>
+  <div class="status-item" style="margin-left:auto"><span>LSTM AUTOENCODER · 50-WINDOW · 25 FEATURES · THRESHOLD 3σ</span></div>
+</div>
+
+<!-- PAGE 1: DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="metrics">
+    <div class="metric green"><div class="metric-val green" id="m-precision">—</div><div class="metric-label">PRECISION</div><div class="metric-sub">When we flag = we're right</div></div>
+    <div class="metric blue"><div class="metric-val blue" id="m-recall">—</div><div class="metric-label">RECALL</div><div class="metric-sub">Of anomaly window caught</div></div>
+    <div class="metric yellow"><div class="metric-val yellow" id="m-start">—</div><div class="metric-label">FAULT START (MIN)</div><div class="metric-sub" id="m-start-sub">days into mission</div></div>
+    <div class="metric red"><div class="metric-val red" id="m-flags">—</div><div class="metric-label">TRUE POSITIVES</div><div class="metric-sub">Correctly flagged anomaly mins</div></div>
+    <div class="metric purple"><div class="metric-val purple" id="m-total">—</div><div class="metric-label">TOTAL DATA POINTS</div><div class="metric-sub">Minutes of telemetry</div></div>
+  </div>
+
+  <div class="timeline-wrap">
+    <div class="timeline-label">📅 MISSION TIMELINE — CLICK A DAY TO ZOOM INTO IT</div>
+    <div id="day-timeline"></div>
+  </div>
+
+  <div class="main-grid">
+    <div class="charts-col">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📡 SATELLITE TELEMETRY SIGNAL <span class="card-badge" id="ch-badge">—</span></div>
+          <div style="display:flex;gap:8px">
+            <button class="sim-btn primary" style="padding:5px 12px;font-size:0.65rem;" onclick="zoomAnomaly()">🔍 ZOOM ANOMALY</button>
+            <button class="sim-btn success" style="padding:5px 12px;font-size:0.65rem;" onclick="resetZoom()">↺ RESET</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="signalChart"></canvas>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text3);margin-top:8px;letter-spacing:1px">BLUE = normal signal · RED DOTS = AI-detected anomaly points · YELLOW ZONE = real anomaly (NASA labeled)</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🧠 AI RECONSTRUCTION ERROR <span class="card-badge">SPIKES ABOVE RED LINE = ANOMALY</span></div>
+        </div>
+        <div class="card-body">
+          <canvas id="errorChart"></canvas>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text3);margin-top:8px;letter-spacing:1px">ORANGE = AI error · RED DASHED = threshold (3σ above training mean) · When error > threshold = fault detected</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="sat-viz">
+        <div class="sat-container">
+          <div class="orbit-ring"></div>
+          <div class="orbit-ring2"></div>
+          <svg class="sat-body" viewBox="0 0 48 28" fill="none">
+            <rect x="16" y="6" width="16" height="16" rx="3" fill="#0ea5e9" opacity="0.9"/>
+            <rect x="0" y="10" width="14" height="8" rx="1.5" fill="#38bdf8" opacity="0.7"/>
+            <rect x="34" y="10" width="14" height="8" rx="1.5" fill="#38bdf8" opacity="0.7"/>
+            <rect x="22" y="0" width="4" height="6" rx="1" fill="#06b6d4"/>
+            <circle cx="24" cy="14" r="3" fill="#fff" opacity="0.8"/>
+            <circle cx="24" cy="14" r="1.5" fill="#0ea5e9"/>
+          </svg>
+        </div>
+        <div class="sat-status-label">SPACECRAFT STATUS</div>
+        <div class="sat-status-val anomaly" id="sat-status">⚠ FAULT DETECTED</div>
+        <div class="sat-stats">
+          <div class="sat-stat"><span class="sat-stat-key">SPACECRAFT</span><span class="sat-stat-val" id="sat-spacecraft">—</span></div>
+          <div class="sat-stat"><span class="sat-stat-key">CHANNEL</span><span class="sat-stat-val" id="sat-channel">—</span></div>
+          <div class="sat-stat"><span class="sat-stat-key">SUBSYSTEM</span><span class="sat-stat-val" id="sat-type">—</span></div>
+          <div class="sat-stat"><span class="sat-stat-key">FAULT ONSET</span><span class="sat-stat-val warn" id="sat-onset">—</span></div>
+          <div class="sat-stat"><span class="sat-stat-key">FAULT DURATION</span><span class="sat-stat-val warn" id="sat-duration">—</span></div>
+          <div class="sat-stat"><span class="sat-stat-key">OUTLIERS REMOVED</span><span class="sat-stat-val ok" id="sat-outliers">—</span></div>
+          <div class="sat-stat"><span class="sat-stat-key">FALSE POSITIVES</span><span class="sat-stat-val" id="sat-fp">—</span></div>
+          <div class="sat-stat"><span class="sat-stat-key">AI MODEL</span><span class="sat-stat-val ok">ACTIVE</span></div>
+        </div>
+      </div>
+
+      <div class="sim-controls">
+        <div class="sim-title">⚡ SIMULATION CONTROLS</div>
+        <div class="sim-btns">
+          <button class="sim-btn primary" onclick="startSimulation()">▶ PLAY LIVE SIMULATION</button>
+          <button class="sim-btn danger"  onclick="replayFaultDetection()">🎯 REPLAY FAULT DETECTION</button>
+          <button class="sim-btn success" onclick="showNormal()">✅ RESET TO NORMAL STATE</button>
+        </div>
+        <div class="progress-bar-wrap" id="prog-wrap"><div class="progress-bar" id="prog-bar"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">🚨 AUTONOMOUS ALERT LOG</div></div>
+        <div class="card-body" style="padding:12px"><div class="alerts-list" id="alert-list"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: HOW IT WORKS -->
+<div class="page" id="page-how">
+  <div style="padding:24px 32px 8px;position:relative;z-index:5">
+    <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:900;letter-spacing:3px;color:var(--blue2);margin-bottom:6px">HOW OUR AI WORKS</div>
+    <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text2);letter-spacing:1px">A simple step-by-step explanation for everyone</div>
+  </div>
+  <div class="how-grid">
+    <div class="how-card fade-up" style="animation-delay:0.1s"><div class="how-num">01</div><div class="how-icon">📡</div><div class="how-title">SATELLITE SENDS DATA</div><div class="how-desc">Every minute, the NASA SMAP satellite sends readings from all its sensors to Earth. We use 25 sensor channels simultaneously — like checking 25 vital signs at once.</div><span class="how-tag">25 FEATURES PER TIMESTEP</span></div>
+    <div class="how-card fade-up" style="animation-delay:0.2s"><div class="how-num">02</div><div class="how-icon">🧠</div><div class="how-title">AI LEARNS NORMAL</div><div class="how-desc">We fed the AI 2,880 minutes of confirmed normal satellite operation. It learned what healthy looks like — without ever being shown what a fault looks like.</div><span class="how-tag">UNSUPERVISED LEARNING</span></div>
+    <div class="how-card fade-up" style="animation-delay:0.3s"><div class="how-num">03</div><div class="how-icon">⏱️</div><div class="how-title">READS 50 MINUTES AT ONCE</div><div class="how-desc">The LSTM looks at a sliding window of 50 consecutive minutes. It doesn't just see the current reading — it remembers what happened before. Like a doctor who knows your history.</div><span class="how-tag">LSTM · TEMPORAL MEMORY</span></div>
+    <div class="how-card fade-up" style="animation-delay:0.4s"><div class="how-num">04</div><div class="how-icon">🔄</div><div class="how-title">TRIES TO RECONSTRUCT</div><div class="how-desc">The Autoencoder compresses the data and tries to rebuild it. If the data looks normal — it rebuilds perfectly. If something is wrong — it fails and the error spikes.</div><span class="how-tag">AUTOENCODER ARCHITECTURE</span></div>
+    <div class="how-card fade-up" style="animation-delay:0.5s"><div class="how-num">05</div><div class="how-icon">📊</div><div class="how-title">ERROR = ANOMALY SIGNAL</div><div class="how-desc">The failure to reconstruct IS the anomaly score. When the error stays above 3 standard deviations for 10+ consecutive minutes — the system raises an alarm.</div><span class="how-tag">3σ THRESHOLD · 10-MIN FILTER</span></div>
+    <div class="how-card fade-up" style="animation-delay:0.6s"><div class="how-num">06</div><div class="how-icon">⚡</div><div class="how-title">AUTONOMOUS ACTION</div><div class="how-desc">No human needed. The system triggers alerts, logs the fault, and initiates backup systems — all in real time, 24/7, with no fatigue or delay.</div><span class="how-tag">REAL-TIME · AUTONOMOUS</span></div>
+  </div>
+  <div class="pipeline">
+    <div class="pipeline-title">🔗 FULL PIPELINE</div>
+    <div class="pipeline-steps">
+      <div class="pipe-step"><div class="pipe-icon">🛰️</div><div class="pipe-label">NASA SMAP<br>TELEMETRY</div></div>
+      <div class="pipe-step"><div class="pipe-icon">🧹</div><div class="pipe-label">OUTLIER<br>REMOVAL (3σ)</div></div>
+      <div class="pipe-step"><div class="pipe-icon">⚙️</div><div class="pipe-label">SCALE &<br>NORMALIZE</div></div>
+      <div class="pipe-step"><div class="pipe-icon">🪟</div><div class="pipe-label">SLIDING<br>WINDOW (50)</div></div>
+      <div class="pipe-step"><div class="pipe-icon">🧠</div><div class="pipe-label">LSTM<br>ENCODER</div></div>
+      <div class="pipe-step"><div class="pipe-icon">🔄</div><div class="pipe-label">LSTM<br>DECODER</div></div>
+      <div class="pipe-step"><div class="pipe-icon">📏</div><div class="pipe-label">RECON<br>ERROR</div></div>
+      <div class="pipe-step"><div class="pipe-icon">🎯</div><div class="pipe-label">3σ<br>THRESHOLD</div></div>
+      <div class="pipe-step"><div class="pipe-icon">🔟</div><div class="pipe-label">10-MIN<br>FILTER</div></div>
+      <div class="pipe-step"><div class="pipe-icon">🚨</div><div class="pipe-label">ALERT &<br>ACTION</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: RESULTS -->
+<div class="page" id="page-results">
+  <div style="padding:24px 32px 8px;position:relative;z-index:5">
+    <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:900;letter-spacing:3px;color:var(--blue2);margin-bottom:6px">MODEL RESULTS & JOURNEY</div>
+    <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text2);letter-spacing:1px">How we went from 4.2% to <span id="r-precision-title">—</span> precision</div>
+  </div>
+  <div class="results-grid">
+    <div class="result-big">
+      <div class="result-num" style="background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-precision">—</div>
+      <div class="result-label">FINAL PRECISION</div>
+      <div class="result-sub">When we raise an alarm, we are right this % of the time</div>
+    </div>
+    <div class="result-big">
+      <div class="result-num" style="background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-recall">—</div>
+      <div class="result-label">FINAL RECALL</div>
+      <div class="result-sub" id="r-recall-sub">We caught this % of the entire anomaly event</div>
+    </div>
+    <div class="result-big" style="border-color:rgba(239,68,68,0.3)">
+      <div class="result-num" style="background:linear-gradient(135deg,var(--red),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-fp">—</div>
+      <div class="result-label">FALSE POSITIVES</div>
+      <div class="result-sub" id="r-fp-sub">Out of total data points</div>
+    </div>
+    <div class="result-big" style="border-color:rgba(16,185,129,0.3)">
+      <div class="result-num" style="background:linear-gradient(135deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-tp">—</div>
+      <div class="result-label">TRUE POSITIVES</div>
+      <div class="result-sub" id="r-tp-sub">Correctly flagged anomaly minutes</div>
+    </div>
+  </div>
+  <div class="attempts-table">
+    <table>
+      <thead><tr><th>#</th><th>MODEL</th><th>CHANNEL</th><th>PRECISION</th><th>WHAT WE LEARNED</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Isolation Forest (1 feature)</td><td>S-1</td><td class="prec bad">4.2%</td><td>Ignores time — flags everything. Time-series needs memory.</td></tr>
+        <tr><td>2</td><td>Isolation Forest (25 features)</td><td>D-2</td><td class="prec mid">45.6%</td><td>Better, but D-2 was a simple on/off switch — too easy.</td></tr>
+        <tr><td>3</td><td>Dense Autoencoder</td><td>E-3</td><td class="prec bad">15.1%</td><td>No time awareness. Anomaly was smoother than normal signal.</td></tr>
+        <tr><td>4</td><td>LSTM Autoencoder</td><td>P-2</td><td class="prec mid">78.6%</td><td>Breakthrough! LSTM understands time. Right model + right channel.</td></tr>
+        <tr class="winner"><td>✅ 5</td><td><b>LSTM + Consecutive Filter + Outlier Clipping</b></td><td><b>P-2</b></td><td class="prec good" id="r-final-prec">—</td><td><b>Final model. 10-min filter + 3σ outlier removal eliminated noise.</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SIMULATION OVERLAY -->
+<div class="sim-overlay" id="simOverlay">
+  <div class="sim-title-big">🛰️ LIVE FAULT DETECTION SIMULATION</div>
+  <div class="sim-subtitle" id="sim-sub">REPLAYING NASA SMAP · CHANNEL P-2 · REAL TELEMETRY PATTERN</div>
+  <div class="sim-chart-wrap"><canvas id="simChart" style="max-height:300px !important"></canvas></div>
+  <div class="sim-status normal" id="simStatus">● SYSTEM NOMINAL — MONITORING</div>
+  <button class="sim-close" onclick="closeSimulation()">✕ CLOSE SIMULATION</button>
+</div>
+
+<footer id="footer-text">SPACETHON 2026 · KFUPM · AUTONOMOUS SATELLITE FAULT DETECTION · NASA SMAP · LSTM AUTOENCODER · OUTLIER CLIPPING · CONSECUTIVE FILTER</footer>
+
+<script>
+let signalChart, errorChart, simChart;
+let fullData = null;
+let simInterval = null;
+
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function showFaultAlert(data) {
+  const maxErr = Math.max(...data.reconstruction_errors.slice(
+    Math.max(0, data.anomaly_start - 50),
+    Math.min(data.reconstruction_errors.length, data.anomaly_end + 50)
+  )).toFixed(3);
+
+  document.getElementById('fa-channel').textContent   = data.channel.id + ' — ' + data.channel.real_name;
+  document.getElementById('fa-subsystem').textContent = data.channel.subsystem;
+  document.getElementById('fa-onset').textContent     = 'T+' + data.anomaly_start.toLocaleString() + ' MIN';
+  document.getElementById('fa-error').textContent     = maxErr;
+  document.getElementById('fa-threshold').textContent = data.threshold.toFixed(4);
+  document.getElementById('fa-outliers').textContent  = data.outliers_removed + ' removed';
+
+  document.getElementById('faultAlert').classList.add('active');
+}
+
+function closeFaultAlert() {
+  document.getElementById('faultAlert').classList.remove('active');
+}
+
+function buildDayTimeline(days) {
+  const container = document.getElementById('day-timeline');
+  container.innerHTML = '';
+  days.forEach(d => {
+    const div = document.createElement('div');
+    div.style.cssText = `flex:1;padding:10px 8px;border-radius:8px;text-align:center;border:1px solid ${d.has_anomaly?'rgba(239,68,68,0.4)':'rgba(16,185,129,0.3)'};background:${d.has_anomaly?'rgba(239,68,68,0.06)':'rgba(16,185,129,0.04)'};cursor:pointer;transition:all 0.2s;font-family:var(--font-mono);font-size:0.65rem;`;
+    div.onmouseover = () => { div.style.transform='translateY(-2px)'; };
+    div.onmouseout  = () => { div.style.transform='none'; };
+    div.innerHTML = `
+      <div style="font-size:1.1rem">${d.has_anomaly?'🚨':'✅'}</div>
+      <div style="color:var(--text2);margin-top:4px">DAY ${d.day}</div>
+      <div style="color:${d.has_anomaly?'var(--red)':'var(--green)'};font-weight:600;margin-top:2px">${d.anomaly_count} flags</div>
+      <div style="color:var(--text3);font-size:0.6rem;margin-top:2px">max err: ${d.max_error.toFixed(2)}</div>`;
+    div.onclick = () => filterByDay(d);
+    container.appendChild(div);
+  });
+}
+
+function filterByDay(day) {
+  if (!fullData) return;
+  buildSignalChart({
+    ...fullData,
+    signal: fullData.signal.slice(day.start, day.end),
+    reconstruction_errors: fullData.reconstruction_errors.slice(day.start, day.end),
+    anomaly_flags: fullData.anomaly_flags.slice(day.start, day.end),
+    anomaly_start: Math.max(0, fullData.anomaly_start - day.start),
+    anomaly_end:   Math.min(day.end - day.start, fullData.anomaly_end - day.start),
+  });
+  buildErrorChart({
+    ...fullData,
+    reconstruction_errors: fullData.reconstruction_errors.slice(day.start, day.end),
+    anomaly_start: Math.max(0, fullData.anomaly_start - day.start),
+    anomaly_end:   Math.min(day.end - day.start, fullData.anomaly_end - day.start),
+  });
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/data');
+    fullData  = await res.json();
+    populateAll(fullData);
+  } catch(e) { console.error('API error:', e); }
+}
+
+function populateAll(data) {
+  const anomDuration  = data.anomaly_end - data.anomaly_start;
+  const daysIntoMiss  = (data.anomaly_start / 1440).toFixed(1);
+  const fpPct         = ((data.false_positives / data.signal.length) * 100).toFixed(1);
+
+  // Dashboard metrics
+  document.getElementById('m-precision').textContent  = data.precision + '%';
+  document.getElementById('m-recall').textContent     = data.recall + '%';
+  document.getElementById('m-start').textContent      = data.anomaly_start.toLocaleString();
+  document.getElementById('m-start-sub').textContent  = '~' + daysIntoMiss + ' days into mission';
+  document.getElementById('m-flags').textContent      = data.true_positives.toLocaleString();
+  document.getElementById('m-total').textContent      = data.signal.length.toLocaleString();
+
+  // Status bar
+  document.getElementById('sb-channel').textContent   = data.channel.id + ' · ' + data.channel.real_name;
+  document.getElementById('sb-onset').textContent     = 'T+' + data.anomaly_start.toLocaleString() + ' MIN';
+
+  // Satellite panel
+  document.getElementById('sat-spacecraft').textContent = data.channel.spacecraft;
+  document.getElementById('sat-channel').textContent    = data.channel.id;
+  document.getElementById('sat-type').textContent       = data.channel.real_name;
+  document.getElementById('sat-onset').textContent      = 'T+' + data.anomaly_start.toLocaleString() + ' MIN';
+  document.getElementById('sat-duration').textContent   = anomDuration.toLocaleString() + ' MIN (~' + (anomDuration/60).toFixed(1) + ' HRS)';
+  document.getElementById('sat-outliers').textContent   = data.outliers_removed + ' removed (3σ clipping)';
+  document.getElementById('sat-fp').textContent         = data.false_positives + ' (' + fpPct + '% of total)';
+
+  // Chart badge
+  document.getElementById('ch-badge').textContent = data.channel.id + ' · ' + data.channel.real_name + ' · ' + data.channel.spacecraft;
+
+  // Simulation subtitle
+  document.getElementById('sim-sub').textContent = 'REPLAYING ' + data.channel.spacecraft + ' · CHANNEL ' + data.channel.id + ' · ' + data.channel.real_name.toUpperCase();
+
+  // Results page
+  document.getElementById('r-precision').textContent       = data.precision + '%';
+  document.getElementById('r-precision-title').textContent = data.precision + '%';
+  document.getElementById('r-recall').textContent          = data.recall + '%';
+  document.getElementById('r-recall-sub').textContent      = 'We caught ' + data.recall + '% of the entire ' + anomDuration.toLocaleString() + '-minute anomaly event';
+  document.getElementById('r-fp').textContent              = data.false_positives.toLocaleString();
+  document.getElementById('r-fp-sub').textContent          = 'Out of ' + data.signal.length.toLocaleString() + ' total points — only ' + fpPct + '% wrong';
+  document.getElementById('r-tp').textContent              = data.true_positives.toLocaleString();
+  document.getElementById('r-tp-sub').textContent          = 'Correctly flagged out of ' + anomDuration.toLocaleString() + ' total anomaly minutes';
+  document.getElementById('r-final-prec').textContent      = data.precision + '%';
+
+  // Footer
+  document.getElementById('footer-text').textContent = 'SPACETHON 2026 · KFUPM · ' + data.channel.spacecraft + ' · CHANNEL ' + data.channel.id + ' · LSTM AUTOENCODER · ' + data.precision + '% PRECISION · ' + data.recall + '% RECALL';
+
+  // Alert log
+  const alerts = [
+    { type:'ok',   icon:'✅', title:'SYSTEM NORMAL · T+0 TO T+' + data.anomaly_start.toLocaleString(), desc: data.channel.real_name + ' stable. All readings within expected parameters. Outlier clipping applied (' + data.outliers_removed + ' removed).' },
+    { type:'warn', icon:'🚨', title:'FAULT DETECTED · T+' + data.anomaly_start.toLocaleString() + ' MIN', desc: 'Reconstruction error exceeded ' + data.threshold.toFixed(3) + ' (3σ threshold) for 10+ consecutive minutes. Channel ' + data.channel.id + ' flickering detected.' },
+    { type:'warn', icon:'⚡', title:'AUTO ACTION · BACKUP RELAY ENGAGED', desc: 'System autonomously engaged backup power relay. No human intervention required. Engineering team notified via telemetry.' },
+    { type:'info', icon:'🔄', title:'RECOVERY · T+' + data.anomaly_end.toLocaleString() + ' MIN', desc: 'Signal returned below threshold. Reconstruction error normalizing. ' + data.true_positives.toLocaleString() + ' anomaly points successfully detected.' },
+  ];
+  const list = document.getElementById('alert-list');
+  list.innerHTML = '';
+  alerts.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'alert-item ' + a.type;
+    item.innerHTML = `<div class="alert-icon">${a.icon}</div><div><div class="alert-title ${a.type}">${a.title}</div><div class="alert-desc">${a.desc}</div></div>`;
+    list.appendChild(item);
+  });
+
+  buildDayTimeline(data.days);
+  buildSignalChart(data);
+  buildErrorChart(data);
+}
+
+function buildSignalChart(data, zoom = false) {
+  const STEP  = Math.max(1, Math.floor(data.signal.length / 400));
+  const start = zoom ? Math.max(0, data.anomaly_start - 300) : 0;
+  const end   = zoom ? Math.min(data.signal.length, data.anomaly_end + 300) : data.signal.length;
+  const indices=[], sig=[], anom=[];
+  for (let i = start; i < end; i += STEP) {
+    indices.push(i);
+    sig.push(+data.signal[i].toFixed(4));
+    anom.push(data.anomaly_flags[i] ? +data.signal[i].toFixed(4) : null);
+  }
+  if (signalChart) signalChart.destroy();
+  signalChart = new Chart(document.getElementById('signalChart').getContext('2d'), {
+    type: 'line',
+    data: { labels:indices, datasets:[
+      { label:'Telemetry Signal', data:sig, borderColor:'#0ea5e9', borderWidth:1.2, pointRadius:0, tension:0.15, fill:false },
+      { label:'AI-Detected Anomaly', data:anom, borderColor:'#ef4444', backgroundColor:'#ef4444', borderWidth:0, pointRadius:3.5, pointBackgroundColor:'#ef4444', showLine:false }
+    ]},
+    options: { responsive:true, animation:{duration:600}, plugins:{legend:{labels:{color:'#7a9ab8',font:{family:'Share Tech Mono',size:11}}}}, scales:{x:{ticks:{color:'#3a5a7a',maxTicksLimit:8,font:{family:'Share Tech Mono',size:10}},grid:{color:'#0e2a4a'}},y:{ticks:{color:'#3a5a7a',font:{family:'Share Tech Mono',size:10}},grid:{color:'#0e2a4a'}}}}
+  });
+}
+
+function buildErrorChart(data) {
+  const STEP = Math.max(1, Math.floor(data.reconstruction_errors.length / 400));
+  const indices=[], errs=[], thresh=[];
+  for (let i = 0; i < data.reconstruction_errors.length; i += STEP) {
+    indices.push(i);
+    errs.push(+data.reconstruction_errors[i].toFixed(4));
+    thresh.push(+data.threshold.toFixed(4));
+  }
+  if (errorChart) errorChart.destroy();
+  errorChart = new Chart(document.getElementById('errorChart').getContext('2d'), {
+    type: 'line',
+    data: { labels:indices, datasets:[
+      { label:'Reconstruction Error', data:errs, borderColor:'#f59e0b', borderWidth:1.2, pointRadius:0, fill:true, backgroundColor:'rgba(245,158,11,0.07)', tension:0.2 },
+      { label:'Anomaly Threshold (3σ)', data:thresh, borderColor:'#ef4444', borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false }
+    ]},
+    options: { responsive:true, animation:{duration:600}, plugins:{legend:{labels:{color:'#7a9ab8',font:{family:'Share Tech Mono',size:11}}}}, scales:{x:{ticks:{color:'#3a5a7a',maxTicksLimit:8,font:{family:'Share Tech Mono',size:10}},grid:{color:'#0e2a4a'}},y:{ticks:{color:'#3a5a7a',font:{family:'Share Tech Mono',size:10}},grid:{color:'#0e2a4a'}}}}
+  });
+}
+
+function zoomAnomaly() { if (fullData) buildSignalChart(fullData, true); }
+function resetZoom()   { if (fullData) buildSignalChart(fullData, false); }
+
+function showNormal() {
+  document.getElementById('sat-status').textContent = '✓ ALL SYSTEMS NOMINAL';
+  document.getElementById('sat-status').className   = 'sat-status-val normal';
+  closeFaultAlert();
+  addAlert('info', '🔵', 'MANUAL RESET · NORMAL STATE', 'Dashboard reset to normal operating view. Anomaly history preserved in log.');
+}
+
+function replayFaultDetection() {
+  if (!fullData) return;
+  document.getElementById('sat-status').textContent = '✓ ALL SYSTEMS NOMINAL';
+  document.getElementById('sat-status').className   = 'sat-status-val normal';
+  closeFaultAlert();
+  resetZoom();
+  addAlert('info', '⏪', 'REPLAYING FAULT DETECTION', 'Scanning telemetry from T+0 — watching for anomaly onset...');
+  setTimeout(() => {
+    document.getElementById('sat-status').textContent = '⚠ FAULT DETECTED';
+    document.getElementById('sat-status').className   = 'sat-status-val anomaly';
+    addAlert('warn', '🚨', 'FAULT DETECTED · T+' + fullData.anomaly_start.toLocaleString() + ' MIN', 'Reconstruction error exceeded 3σ threshold for 10+ consecutive minutes on channel ' + fullData.channel.id + '.');
+    addAlert('warn', '⚡', 'AUTO ACTION · BACKUP RELAY ENGAGED', 'System autonomously switched to backup power. No human intervention required.');
+    showFaultAlert(fullData);
+    zoomAnomaly();
+  }, 2200);
+}
+
+function addAlert(type, icon, title, desc) {
+  const list = document.getElementById('alert-list');
+  const item = document.createElement('div');
+  item.className = 'alert-item ' + type;
+  item.innerHTML = `<div class="alert-icon">${icon}</div><div><div class="alert-title ${type}">${title}</div><div class="alert-desc">${desc}</div></div>`;
+  list.insertBefore(item, list.firstChild);
+}
+
+function startSimulation() {
+  document.getElementById('simOverlay').classList.add('active');
+  const simData=[], simLabels=[];
+  let tick=0;
+  const TOTAL=200, FAULT_AT=130;
+  const ctx = document.getElementById('simChart').getContext('2d');
+  if (simChart) simChart.destroy();
+  simChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels:simLabels, datasets:[{ label:'Live Telemetry', data:simData, borderColor:'#0ea5e9', borderWidth:1.5, pointRadius:0, tension:0.2, fill:true, backgroundColor:'rgba(14,165,233,0.06)' }] },
+    options:{ responsive:true, animation:false, plugins:{legend:{labels:{color:'#7a9ab8',font:{family:'Share Tech Mono',size:11}}}}, scales:{x:{ticks:{color:'#3a5a7a',maxTicksLimit:8,font:{family:'Share Tech Mono',size:10}},grid:{color:'#0e2a4a'}},y:{min:-1.5,max:1.5,ticks:{color:'#3a5a7a',font:{family:'Share Tech Mono',size:10}},grid:{color:'#0e2a4a'}}}}
+  });
+  const prog = document.getElementById('prog-bar');
+  document.getElementById('prog-wrap').style.display = 'block';
+  if (simInterval) clearInterval(simInterval);
+  simInterval = setInterval(() => {
+    if (tick >= TOTAL) { clearInterval(simInterval); document.getElementById('prog-wrap').style.display='none'; return; }
+    const isAnomaly = tick >= FAULT_AT;
+    const val = isAnomaly ? (Math.random()*2-1) : (-0.95 + Math.random()*0.08);
+    simLabels.push('T+' + tick);
+    simData.push(+val.toFixed(3));
+    simChart.data.datasets[0].borderColor     = isAnomaly ? '#ef4444' : '#0ea5e9';
+    simChart.data.datasets[0].backgroundColor = isAnomaly ? 'rgba(239,68,68,0.06)' : 'rgba(14,165,233,0.06)';
+    const status = document.getElementById('simStatus');
+    if (isAnomaly) { status.textContent='🚨 ANOMALY DETECTED — FAULT IN PROGRESS'; status.className='sim-status anomaly'; }
+    else           { status.textContent='● SYSTEM NOMINAL — MONITORING';            status.className='sim-status normal'; }
+    if (simLabels.length > 100) { simLabels.shift(); simData.shift(); }
+    simChart.update();
+    prog.style.width = (tick/TOTAL*100) + '%';
+    tick++;
+  }, 60);
+}
+
+function closeSimulation() {
+  document.getElementById('simOverlay').classList.remove('active');
+  if (simInterval) clearInterval(simInterval);
+}
+
+init();
+</script>
+</body>
+</html>
