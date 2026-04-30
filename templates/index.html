@@ -41,7 +41,7 @@ header { position:relative; z-index:10; background:linear-gradient(180deg,rgba(6
 .logo { display:flex; align-items:center; gap:14px; }
 .satellite-icon { width:44px; height:44px; animation:rotateSat 8s linear infinite; }
 @keyframes rotateSat { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.logo h1 { font-family:var(--font-display); font-size:1.1rem; font-weight:900; letter-spacing:3px; background:linear-gradient(90deg,var(--blue),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.logo h1 { font-family:var(--font-display); font-size:1.1rem; font-weight:900; letter-spacing:3px; background:linear-gradient(90deg,var(--blue),var(--teal)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 .logo p { font-family:var(--font-mono); font-size:0.65rem; color:var(--text2); letter-spacing:2px; margin-top:2px; }
 .header-right { display:flex; align-items:center; gap:20px; }
 .live-badge { display:flex; align-items:center; gap:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.4); border-radius:20px; padding:6px 14px; font-family:var(--font-mono); font-size:0.72rem; color:var(--red); letter-spacing:2px; }
@@ -220,9 +220,88 @@ canvas { max-height:180px !important; }
 footer { position:relative; z-index:5; text-align:center; padding:16px; font-family:var(--font-mono); font-size:0.62rem; color:var(--text3); letter-spacing:2px; border-top:1px solid var(--border); margin-top:8px; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 .fade-up { animation:fadeUp 0.5s ease forwards; }
+
+/* LOADING OVERLAY */
+#loader { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; transition:opacity 0.5s; }
+#loader.hidden { opacity:0; pointer-events:none; }
+.loader-ring { width:64px; height:64px; border:2px solid var(--border2); border-top-color:var(--blue); border-radius:50%; animation:spin 0.9s linear infinite; }
+.loader-title { font-family:var(--font-display); font-size:1.1rem; font-weight:900; letter-spacing:4px; background:linear-gradient(90deg,var(--blue),var(--teal)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.loader-sub { font-family:var(--font-mono); font-size:0.7rem; color:var(--text2); letter-spacing:2px; }
+
+/* RESPONSIVE — TABLET (≤1024px) */
+@media (max-width:1024px) {
+  header { padding:10px 16px; height:auto; min-height:64px; flex-wrap:wrap; gap:8px; }
+  .logo p { display:none; }
+  .logo h1 { font-size:0.95rem; }
+  .header-right { gap:10px; }
+  .nav-tab { padding:6px 10px; font-size:0.66rem; }
+  .live-badge { padding:5px 10px; font-size:0.66rem; }
+  .status-bar { padding:8px 16px; gap:12px; }
+  .metrics { grid-template-columns:repeat(3,1fr); padding:16px 16px 0; }
+  .timeline-wrap { padding:12px 16px 0; }
+  .main-grid { grid-template-columns:1fr; padding:12px 16px; }
+  .side-panel { display:grid; grid-template-columns:1fr 1fr; }
+  .how-grid { grid-template-columns:repeat(2,1fr); padding:16px 16px; }
+  .pipeline { margin:0 16px 16px; }
+  .results-grid { padding:16px 16px; }
+  .attempts-table { margin:0 16px 16px; }
+}
+
+/* RESPONSIVE — MOBILE (≤640px) */
+@media (max-width:640px) {
+  header { padding:10px 12px; gap:6px; }
+  .satellite-icon { width:34px; height:34px; }
+  .logo { gap:10px; }
+  .logo h1 { font-size:0.82rem; letter-spacing:2px; }
+  .header-right { width:100%; justify-content:space-between; gap:6px; }
+  .nav-tabs { gap:2px; }
+  .nav-tab { padding:5px 8px; font-size:0.6rem; letter-spacing:0.5px; }
+  .live-badge { display:none; }
+
+  .status-bar { padding:6px 12px; gap:8px; font-size:0.65rem; }
+  .status-bar .status-item:last-child { display:none; }
+
+  .metrics { grid-template-columns:repeat(2,1fr); padding:10px 12px 0; gap:8px; }
+  .metric { padding:12px 14px; }
+  .metric-val { font-size:1.4rem; }
+  .metrics .metric:last-child { grid-column:span 2; }
+
+  .timeline-wrap { padding:10px 12px 0; }
+  #day-timeline { gap:4px; }
+
+  .main-grid { padding:10px 12px; gap:12px; }
+  .side-panel { display:flex; flex-direction:column; }
+
+  .card-header { flex-wrap:wrap; gap:8px; }
+  .card-header > div:last-child { width:100%; }
+
+  .how-grid { grid-template-columns:1fr; padding:12px 12px; gap:10px; }
+  .how-card { padding:18px; }
+  .pipeline { margin:0 12px 12px; padding:16px; }
+
+  .results-grid { grid-template-columns:1fr; padding:12px 12px; gap:10px; }
+  .result-num { font-size:2.8rem; }
+  .attempts-table { margin:0 12px 12px; overflow-x:auto; }
+  .attempts-table table { min-width:480px; }
+
+  .fault-alert { width:calc(100vw - 24px); right:12px; left:12px; }
+
+  .sim-chart-wrap { width:95%; padding:14px; }
+  .sim-title-big { font-size:0.95rem; letter-spacing:2px; }
+  .sim-overlay { padding:16px; gap:14px; }
+
+  footer { font-size:0.55rem; padding:12px; }
+}
 </style>
 </head>
 <body>
+
+<!-- LOADING OVERLAY -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-title">SATGUARD AI</div>
+  <div class="loader-sub">LOADING TELEMETRY DATA...</div>
+</div>
 
 <!-- FAULT ALERT POPUP -->
 <div class="fault-alert" id="faultAlert">
@@ -408,22 +487,22 @@ footer { position:relative; z-index:5; text-align:center; padding:16px; font-fam
   </div>
   <div class="results-grid">
     <div class="result-big">
-      <div class="result-num" style="background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-precision">—</div>
+      <div class="result-num" style="background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent" id="r-precision">—</div>
       <div class="result-label">FINAL PRECISION</div>
       <div class="result-sub">When we raise an alarm, we are right this % of the time</div>
     </div>
     <div class="result-big">
-      <div class="result-num" style="background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-recall">—</div>
+      <div class="result-num" style="background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent" id="r-recall">—</div>
       <div class="result-label">FINAL RECALL</div>
       <div class="result-sub" id="r-recall-sub">We caught this % of the entire anomaly event</div>
     </div>
     <div class="result-big" style="border-color:rgba(239,68,68,0.3)">
-      <div class="result-num" style="background:linear-gradient(135deg,var(--red),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-fp">—</div>
+      <div class="result-num" style="background:linear-gradient(135deg,var(--red),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent" id="r-fp">—</div>
       <div class="result-label">FALSE POSITIVES</div>
       <div class="result-sub" id="r-fp-sub">Out of total data points</div>
     </div>
     <div class="result-big" style="border-color:rgba(16,185,129,0.3)">
-      <div class="result-num" style="background:linear-gradient(135deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="r-tp">—</div>
+      <div class="result-num" style="background:linear-gradient(135deg,var(--green),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent" id="r-tp">—</div>
       <div class="result-label">TRUE POSITIVES</div>
       <div class="result-sub" id="r-tp-sub">Correctly flagged anomaly minutes</div>
     </div>
@@ -527,6 +606,9 @@ async function init() {
     fullData  = await res.json();
     populateAll(fullData);
   } catch(e) { console.error('API error:', e); }
+  const loader = document.getElementById('loader');
+  loader.classList.add('hidden');
+  setTimeout(() => loader.remove(), 500);
 }
 
 function populateAll(data) {

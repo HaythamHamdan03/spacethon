@@ -3,8 +3,16 @@ services:
     name: satguard-ai
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --preload --timeout 120
     plan: free
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+
+  - type: cron
+    name: satguard-keepalive
+    env: python
+    schedule: "*/14 * * * *"
+    buildCommand: pip install requests
+    startCommand: python keepalive.py
+    plan: free
