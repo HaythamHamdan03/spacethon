@@ -15,4 +15,3 @@ services:
     schedule: "*/14 * * * *"
     buildCommand: pip install requests
     startCommand: python keepalive.py
-    plan: free
