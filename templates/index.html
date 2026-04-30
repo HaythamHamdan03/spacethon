@@ -228,6 +228,11 @@ footer { position:relative; z-index:5; text-align:center; padding:16px; font-fam
 .loader-title { font-family:var(--font-display); font-size:1.1rem; font-weight:900; letter-spacing:4px; background:linear-gradient(90deg,var(--blue),var(--teal)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 .loader-sub { font-family:var(--font-mono); font-size:0.7rem; color:var(--text2); letter-spacing:2px; }
 
+/* ── HAMBURGER (hidden on desktop) ── */
+.hamburger { display:none; background:transparent; border:1px solid var(--border2); color:var(--blue2); font-size:1.2rem; padding:6px 12px; border-radius:6px; cursor:pointer; line-height:1; }
+.nav-close { display:none; background:transparent; border:1px solid var(--border2); color:var(--text2); font-family:var(--font-mono); font-size:0.72rem; letter-spacing:2px; padding:10px 30px; border-radius:8px; cursor:pointer; margin-top:8px; }
+@media (max-width:640px) { .nav-close { display:block; } }
+
 /* RESPONSIVE — TABLET (≤1024px) */
 @media (max-width:1024px) {
   header { padding:10px 16px; height:auto; flex-wrap:wrap; gap:8px; }
@@ -248,78 +253,98 @@ footer { position:relative; z-index:5; text-align:center; padding:16px; font-fam
 
 /* RESPONSIVE — MOBILE (≤640px) */
 @media (max-width:640px) {
+
   /* ── HEADER ── */
-  header {
-    padding:10px 12px; gap:6px; height:auto;
-    display:grid;
-    grid-template-columns:auto 1fr;
-    grid-template-rows:auto auto;
-    align-items:center;
-  }
-  .logo { grid-column:1; grid-row:1; gap:8px; }
+  header { padding:10px 14px; height:auto; display:flex; flex-wrap:nowrap; justify-content:space-between; align-items:center; gap:8px; }
+  .logo { gap:8px; flex-shrink:0; }
   .satellite-icon { width:30px; height:30px; }
-  .logo h1 { font-size:0.78rem; letter-spacing:1.5px; white-space:nowrap; }
+  .logo h1 { font-size:0.82rem; letter-spacing:1px; white-space:nowrap; }
   .logo p { display:none; }
-  .header-right {
-    grid-column:2; grid-row:1;
-    justify-content:flex-end; gap:4px;
-    display:flex; align-items:center;
-  }
+  .header-right { gap:6px; align-items:center; }
   .live-badge { display:none; }
-  .nav-tabs { gap:2px; }
-  .nav-tab { padding:5px 7px; font-size:0.58rem; letter-spacing:0; }
+
+  /* Hide desktop nav, show hamburger */
+  .nav-tabs {
+    display:none;
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(2,8,18,0.97);
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:12px; z-index:500;
+  }
+  .nav-tabs.open { display:flex; }
+  .nav-tab { padding:14px 40px; font-size:0.9rem; letter-spacing:2px; width:200px; text-align:center; }
+  .hamburger { display:block; }
 
   /* ── STATUS BAR ── */
-  .status-bar { padding:6px 12px; gap:6px 12px; font-size:0.63rem; }
-  /* hide the long last item (LSTM info line) */
-  .status-bar > .status-item:last-child { display:none; }
+  .status-bar { padding:6px 12px; gap:6px 10px; font-size:0.62rem; flex-wrap:wrap; }
+  .status-bar > .status-item:nth-child(n+4) { display:none; }
 
-  /* ── METRICS ── */
+  /* ── TIMELINE: hidden on mobile ── */
+  .timeline-wrap { display:none; }
+
+  /* ── METRICS: 2 columns, text never cut off ── */
   .metrics {
+    display:grid !important;
     grid-template-columns:repeat(2,1fr) !important;
     padding:10px 12px 0; gap:8px;
   }
   .metrics .metric:last-child { grid-column:span 2; }
-  .metric { padding:12px 14px; }
-  .metric-val { font-size:1.35rem; }
-  .metric-label { font-size:0.56rem; }
+  .metric { padding:14px 16px; }
+  .metric-val { font-size:1.5rem; }
+  .metric-label { font-size:0.58rem; letter-spacing:1px; }
+  .metric-sub { font-size:0.68rem; }
 
-  /* ── TIMELINE ── */
-  .timeline-wrap { padding:10px 12px 0; }
-  #day-timeline { gap:4px; }
+  /* ── MAIN GRID: full single column ── */
+  .main-grid { grid-template-columns:1fr !important; padding:10px 12px; gap:12px; }
+  .side-panel { display:flex !important; flex-direction:column; gap:12px; }
 
-  /* ── MAIN GRID ── */
-  .main-grid { padding:10px 12px; gap:10px; grid-template-columns:1fr; }
-  .side-panel { display:flex; flex-direction:column; }
-
-  /* ── CARD HEADER ── hide long badge, stack buttons below title ── */
+  /* ── CHARTS: shorter so they don't need horizontal scroll ── */
+  canvas { max-height:160px !important; }
+  .card-body { padding:12px; }
   .card-header { flex-wrap:wrap; gap:6px; padding:10px 14px; }
   .card-badge { display:none; }
-  .card-header > div:last-child { width:100%; display:flex; gap:6px; }
   .card-title { font-size:0.7rem; }
+  /* Stack the zoom/reset buttons below the title */
+  .card-header > div:last-child { width:100%; display:flex; gap:6px; }
 
   /* ── SAT VIZ ── */
-  .sat-container { width:110px; height:110px; }
+  .sat-container { width:100px; height:100px; }
+  .sat-viz { padding:14px; }
+  .sat-stats { gap:6px; }
+
+  /* ── SIM CONTROLS ── */
+  .sim-controls { padding:14px 16px; }
 
   /* ── HOW IT WORKS ── */
-  .how-grid { grid-template-columns:1fr; padding:10px 12px; gap:10px; }
+  .how-grid { grid-template-columns:1fr !important; padding:10px 12px; gap:10px; }
   .how-card { padding:16px; }
+  .how-num { font-size:2rem; }
   .pipeline { margin:0 12px 12px; padding:14px; }
+  .pipeline-steps { flex-wrap:wrap; gap:4px; }
+  .pipe-step { min-width:calc(33% - 4px); flex:none; border-radius:6px !important; border-left:1px solid var(--border) !important; margin-left:0 !important; }
 
   /* ── RESULTS ── */
-  .results-grid { grid-template-columns:1fr; padding:10px 12px; gap:8px; }
-  .result-num { font-size:2.6rem; }
-  .attempts-table { margin:0 12px 12px; overflow-x:auto; }
-  .attempts-table table { min-width:480px; font-size:0.72rem; }
-  .attempts-table th, .attempts-table td { padding:8px 10px; }
+  .results-grid { grid-template-columns:repeat(2,1fr) !important; padding:10px 12px; gap:8px; }
+  .result-big { padding:16px; }
+  .result-num { font-size:2.2rem; }
+  .result-label { font-size:0.62rem; }
+  .result-sub { font-size:0.7rem; }
+  .attempts-table { margin:0 12px 12px; }
+  .attempts-table table { width:100%; min-width:0; font-size:0.7rem; }
+  .attempts-table th { font-size:0.6rem; padding:8px 8px; letter-spacing:1px; }
+  .attempts-table td { padding:8px 8px; font-size:0.7rem; }
+  /* Hide the "WHAT WE LEARNED" column on mobile — too wide */
+  .attempts-table th:last-child,
+  .attempts-table td:last-child { display:none; }
 
   /* ── FAULT ALERT ── */
   .fault-alert { width:calc(100vw - 20px); right:10px; left:10px; }
 
   /* ── SIMULATION OVERLAY ── */
   .sim-overlay { padding:14px; gap:12px; }
-  .sim-title-big { font-size:0.9rem; letter-spacing:2px; }
+  .sim-title-big { font-size:0.9rem; letter-spacing:1px; }
   .sim-chart-wrap { width:96%; padding:12px; }
+  canvas#simChart { max-height:200px !important; }
 
   footer { font-size:0.52rem; padding:10px 12px; letter-spacing:1px; }
 }
@@ -374,12 +399,14 @@ footer { position:relative; z-index:5; text-align:center; padding:16px; font-fam
     </div>
   </div>
   <div class="header-right">
-    <div class="nav-tabs">
+    <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" onclick="showPage('dashboard',this)">DASHBOARD</button>
       <button class="nav-tab" onclick="showPage('how',this)">HOW IT WORKS</button>
       <button class="nav-tab" onclick="showPage('results',this)">RESULTS</button>
+      <button class="nav-close" onclick="toggleNav()">✕ CLOSE</button>
     </div>
     <div class="live-badge"><div class="live-dot"></div>LIVE MONITOR</div>
+    <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">&#9776;</button>
   </div>
 </header>
 
@@ -568,11 +595,17 @@ let signalChart, errorChart, simChart;
 let fullData = null;
 let simInterval = null;
 
+function toggleNav() {
+  document.getElementById('navTabs').classList.toggle('open');
+}
+
 function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
+  // close mobile nav after selecting a page
+  document.getElementById('navTabs').classList.remove('open');
 }
 
 function showFaultAlert(data) {
