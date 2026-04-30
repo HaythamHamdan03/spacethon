@@ -230,9 +230,8 @@ footer { position:relative; z-index:5; text-align:center; padding:16px; font-fam
 
 /* RESPONSIVE — TABLET (≤1024px) */
 @media (max-width:1024px) {
-  header { padding:10px 16px; height:auto; min-height:64px; flex-wrap:wrap; gap:8px; }
+  header { padding:10px 16px; height:auto; flex-wrap:wrap; gap:8px; }
   .logo p { display:none; }
-  .logo h1 { font-size:0.95rem; }
   .header-right { gap:10px; }
   .nav-tab { padding:6px 10px; font-size:0.66rem; }
   .live-badge { padding:5px 10px; font-size:0.66rem; }
@@ -241,56 +240,88 @@ footer { position:relative; z-index:5; text-align:center; padding:16px; font-fam
   .timeline-wrap { padding:12px 16px 0; }
   .main-grid { grid-template-columns:1fr; padding:12px 16px; }
   .side-panel { display:grid; grid-template-columns:1fr 1fr; }
-  .how-grid { grid-template-columns:repeat(2,1fr); padding:16px 16px; }
+  .how-grid { grid-template-columns:repeat(2,1fr); padding:16px; }
   .pipeline { margin:0 16px 16px; }
-  .results-grid { padding:16px 16px; }
+  .results-grid { padding:16px; }
   .attempts-table { margin:0 16px 16px; }
 }
 
 /* RESPONSIVE — MOBILE (≤640px) */
 @media (max-width:640px) {
-  header { padding:10px 12px; gap:6px; }
-  .satellite-icon { width:34px; height:34px; }
-  .logo { gap:10px; }
-  .logo h1 { font-size:0.82rem; letter-spacing:2px; }
-  .header-right { width:100%; justify-content:space-between; gap:6px; }
-  .nav-tabs { gap:2px; }
-  .nav-tab { padding:5px 8px; font-size:0.6rem; letter-spacing:0.5px; }
+  /* ── HEADER ── */
+  header {
+    padding:10px 12px; gap:6px; height:auto;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    grid-template-rows:auto auto;
+    align-items:center;
+  }
+  .logo { grid-column:1; grid-row:1; gap:8px; }
+  .satellite-icon { width:30px; height:30px; }
+  .logo h1 { font-size:0.78rem; letter-spacing:1.5px; white-space:nowrap; }
+  .logo p { display:none; }
+  .header-right {
+    grid-column:2; grid-row:1;
+    justify-content:flex-end; gap:4px;
+    display:flex; align-items:center;
+  }
   .live-badge { display:none; }
+  .nav-tabs { gap:2px; }
+  .nav-tab { padding:5px 7px; font-size:0.58rem; letter-spacing:0; }
 
-  .status-bar { padding:6px 12px; gap:8px; font-size:0.65rem; }
-  .status-bar .status-item:last-child { display:none; }
+  /* ── STATUS BAR ── */
+  .status-bar { padding:6px 12px; gap:6px 12px; font-size:0.63rem; }
+  /* hide the long last item (LSTM info line) */
+  .status-bar > .status-item:last-child { display:none; }
 
-  .metrics { grid-template-columns:repeat(2,1fr); padding:10px 12px 0; gap:8px; }
-  .metric { padding:12px 14px; }
-  .metric-val { font-size:1.4rem; }
+  /* ── METRICS ── */
+  .metrics {
+    grid-template-columns:repeat(2,1fr) !important;
+    padding:10px 12px 0; gap:8px;
+  }
   .metrics .metric:last-child { grid-column:span 2; }
+  .metric { padding:12px 14px; }
+  .metric-val { font-size:1.35rem; }
+  .metric-label { font-size:0.56rem; }
 
+  /* ── TIMELINE ── */
   .timeline-wrap { padding:10px 12px 0; }
   #day-timeline { gap:4px; }
 
-  .main-grid { padding:10px 12px; gap:12px; }
+  /* ── MAIN GRID ── */
+  .main-grid { padding:10px 12px; gap:10px; grid-template-columns:1fr; }
   .side-panel { display:flex; flex-direction:column; }
 
-  .card-header { flex-wrap:wrap; gap:8px; }
-  .card-header > div:last-child { width:100%; }
+  /* ── CARD HEADER ── hide long badge, stack buttons below title ── */
+  .card-header { flex-wrap:wrap; gap:6px; padding:10px 14px; }
+  .card-badge { display:none; }
+  .card-header > div:last-child { width:100%; display:flex; gap:6px; }
+  .card-title { font-size:0.7rem; }
 
-  .how-grid { grid-template-columns:1fr; padding:12px 12px; gap:10px; }
-  .how-card { padding:18px; }
-  .pipeline { margin:0 12px 12px; padding:16px; }
+  /* ── SAT VIZ ── */
+  .sat-container { width:110px; height:110px; }
 
-  .results-grid { grid-template-columns:1fr; padding:12px 12px; gap:10px; }
-  .result-num { font-size:2.8rem; }
+  /* ── HOW IT WORKS ── */
+  .how-grid { grid-template-columns:1fr; padding:10px 12px; gap:10px; }
+  .how-card { padding:16px; }
+  .pipeline { margin:0 12px 12px; padding:14px; }
+
+  /* ── RESULTS ── */
+  .results-grid { grid-template-columns:1fr; padding:10px 12px; gap:8px; }
+  .result-num { font-size:2.6rem; }
   .attempts-table { margin:0 12px 12px; overflow-x:auto; }
-  .attempts-table table { min-width:480px; }
+  .attempts-table table { min-width:480px; font-size:0.72rem; }
+  .attempts-table th, .attempts-table td { padding:8px 10px; }
 
-  .fault-alert { width:calc(100vw - 24px); right:12px; left:12px; }
+  /* ── FAULT ALERT ── */
+  .fault-alert { width:calc(100vw - 20px); right:10px; left:10px; }
 
-  .sim-chart-wrap { width:95%; padding:14px; }
-  .sim-title-big { font-size:0.95rem; letter-spacing:2px; }
-  .sim-overlay { padding:16px; gap:14px; }
+  /* ── SIMULATION OVERLAY ── */
+  .sim-overlay { padding:14px; gap:12px; }
+  .sim-title-big { font-size:0.9rem; letter-spacing:2px; }
+  .sim-chart-wrap { width:96%; padding:12px; }
 
-  footer { font-size:0.55rem; padding:12px; }
+  footer { font-size:0.52rem; padding:10px 12px; letter-spacing:1px; }
 }
 </style>
 </head>
